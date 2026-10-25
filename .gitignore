@@ -14,6 +14,9 @@ compile_commands.json
 *.map
 *.dis
 
+# Source files matching the patterns above
+!rtl-clone/rtl/cpu/nabuna_fw.hex
+
 # Rust
 target/
 
