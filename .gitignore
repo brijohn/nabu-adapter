@@ -1,0 +1,39 @@
+# Build output (CMake / pico-sdk / make)
+build/
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+compile_commands.json
+*.o
+*.obj
+*.a
+*.elf
+*.uf2
+*.bin
+*.hex
+*.map
+*.dis
+
+# Rust
+target/
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# Editors and tools
+tags
+TAGS
+.*.swp
+.*.swo
+*~
+.cache/
+.clangd
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db

@@ -1,0 +1,64 @@
+;
+; NABU Adaptor datapump transmitter
+;
+; Streams a scrambled NABU bitstream as a synchronous clock+data pair at
+; 6.312 Mbit/s:
+;
+;   side-set pin = bit clock  (GP18 -> J3 pin 7)
+;   OUT pin      = data       (GP19 -> J3 pin 9)
+;
+; Data changes only while the clock is low and is stable across the rising
+; edge; the adaptor captures data on the rising edge.
+;
+; One loop iteration = one bit period = 2 PIO cycles, so run the state
+; machine at 2 x 6.312 MHz = 12.624 MHz. 50% clock duty cycle.
+;
+; If the TX FIFO runs dry, the `out` stalls with the clock parked low so an
+; underrun pauses the stream cleanly instead of clocking garbage into the
+; adaptor.
+
+.program nabu_tx
+.side_set 1
+
+    out pins, 1     side 0      ; clock low: present the next data bit
+    nop             side 1      ; clock high: adaptor samples this rising edge
+
+% c-sdk {
+#include "hardware/clocks.h"
+
+static inline void nabu_tx_program_init(PIO pio, uint sm, uint offset,
+                                        uint pin_clk, uint pin_data,
+                                        uint32_t bit_rate)
+{
+    // Hand both pins to the PIO and make them outputs
+    pio_gpio_init(pio, pin_clk);
+    pio_gpio_init(pio, pin_data);
+
+    gpio_set_slew_rate(pin_clk, GPIO_SLEW_RATE_SLOW);
+    gpio_set_slew_rate(pin_data, GPIO_SLEW_RATE_SLOW);
+    gpio_set_drive_strength(pin_clk, GPIO_DRIVE_STRENGTH_2MA);
+    gpio_set_drive_strength(pin_data, GPIO_DRIVE_STRENGTH_2MA);
+    pio_sm_set_consecutive_pindirs(pio, sm, pin_clk, 1, true);
+    pio_sm_set_consecutive_pindirs(pio, sm, pin_data, 1, true);
+
+    pio_sm_config c = nabu_tx_program_get_default_config(offset);
+    sm_config_set_sideset_pins(&c, pin_clk);
+    sm_config_set_out_pins(&c, pin_data, 1);
+
+    // MSB first: byte-wide DMA writes are replicated across all four TX FIFO
+    // byte lanes, so the byte's MSB lands at OSR bit 31.
+    sm_config_set_out_shift(&c, false /*shift left*/, true /*autopull*/, 8);
+
+    // Transmit only: join both FIFOs into an 8-deep TX FIFO
+    sm_config_set_fifo_join(&c, PIO_FIFO_JOIN_TX);
+
+    // 2 PIO cycles per bit. Set the 16.8 divider explicitly as integer +
+    // fraction, computed with 64-bit math.
+    uint32_t div256 = (uint32_t)(((uint64_t)clock_get_hz(clk_sys) * 256 + bit_rate)
+                                 / (2 * (uint64_t)bit_rate));
+    sm_config_set_clkdiv_int_frac(&c, div256 >> 8, div256 & 0xFF);
+
+    pio_sm_init(pio, sm, offset, &c);
+    pio_sm_set_enabled(pio, sm, true);
+}
+%}
