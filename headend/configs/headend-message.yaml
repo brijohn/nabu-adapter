@@ -1,0 +1,6 @@
+# NABU headend wheel configuration: MESSAGE LED test
+
+paks: message
+
+time_frames: false       # message packet only, no time frames
+grants: []               # no Set Tiers grants

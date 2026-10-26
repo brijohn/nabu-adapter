@@ -1,0 +1,374 @@
+options:
+  parameters:
+    author: Brian Johnson
+    catch_exceptions: 'True'
+    category: '[NABU Headend]'
+    cmake_opt: ''
+    comment: ''
+    copyright: 2026 Brian Johnson
+    description: Live NABU headend carousel, OQPSK-modulated, served as a cs8 TCP
+      stream
+    gen_cmake: 'On'
+    gen_linking: dynamic
+    generate_options: no_gui
+    hier_block_src_path: '.:'
+    id: nabu_headend_tcp
+    max_nouts: '0'
+    output_language: python
+    placement: (0,0)
+    qt_qss_theme: ''
+    realtime_scheduling: ''
+    run: 'True'
+    run_command: '{python} -u {filename}'
+    run_options: run
+    sizing_mode: fixed
+    thread_safe_setters: ''
+    title: NABU Headend TCP Stream
+    window_size: (1000,1000)
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [8, 8]
+    rotation: 0
+    state: enabled
+
+blocks:
+- name: pulse_taps
+  id: variable
+  parameters:
+    comment: ''
+    value: (0.7 * np.sin(np.pi * np.arange(sps) / sps)).tolist()
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [688, 8.0]
+    rotation: 0
+    state: enabled
+- name: samp_rate
+  id: variable
+  parameters:
+    comment: ''
+    value: symbol_rate * sps
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [584, 8.0]
+    rotation: 0
+    state: enabled
+- name: sps
+  id: variable
+  parameters:
+    comment: ''
+    value: '4'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [400, 8.0]
+    rotation: 0
+    state: enabled
+- name: symbol_rate
+  id: variable
+  parameters:
+    comment: ''
+    value: 3.156e6
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [480, 8.0]
+    rotation: 0
+    state: enabled
+- name: config
+  id: parameter
+  parameters:
+    alias: ''
+    comment: ''
+    hide: none
+    label: Config file
+    short_id: c
+    type: str
+    value: headend.yaml
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [264, 8.0]
+    rotation: 0
+    state: enabled
+- name: diff_i
+  id: digital_diff_encoder_bb
+  parameters:
+    affinity: ''
+    alias: ''
+    coding: digital.DIFF_DIFFERENTIAL
+    comment: ''
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    modulus: '2'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [648, 304.0]
+    rotation: 0
+    state: enabled
+- name: diff_q
+  id: digital_diff_encoder_bb
+  parameters:
+    affinity: ''
+    alias: ''
+    coding: digital.DIFF_DIFFERENTIAL
+    comment: ''
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    modulus: '2'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [648, 416.0]
+    rotation: 0
+    state: enabled
+- name: import_np
+  id: import
+  parameters:
+    alias: ''
+    comment: ''
+    imports: import numpy as np
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [184, 8.0]
+    rotation: 0
+    state: enabled
+- name: join_iq
+  id: blocks_float_to_complex
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    vlen: '1'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1376, 352.0]
+    rotation: 0
+    state: enabled
+- name: tcp_stream
+  id: network_tcp_sink
+  parameters:
+    addr: 0.0.0.0
+    affinity: ''
+    alias: ''
+    comment: ''
+    mode: '2'
+    port: '5816'
+    type: byte
+    vlen: '1'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1920, 448.0]
+    rotation: 0
+    state: enabled
+- name: map_i
+  id: digital_chunks_to_symbols_xx
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    dimension: '1'
+    in_type: byte
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    num_ports: '1'
+    out_type: float
+    symbol_table: '[-1, 1]'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [888, 216.0]
+    rotation: 0
+    state: enabled
+- name: map_q
+  id: digital_chunks_to_symbols_xx
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    dimension: '1'
+    in_type: byte
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    num_ports: '1'
+    out_type: float
+    symbol_table: '[-1, 1]'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [888, 512.0]
+    rotation: 0
+    state: enabled
+- name: q_offset
+  id: blocks_delay
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    delay: sps // 2
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    num_ports: '1'
+    showports: 'False'
+    type: float
+    vlen: '1'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1248, 392.0]
+    rotation: 0
+    state: enabled
+- name: shape_i
+  id: interp_fir_filter_xxx
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    interp: sps
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    samp_delay: '0'
+    taps: pulse_taps
+    type: fff
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1024, 304.0]
+    rotation: 0
+    state: enabled
+- name: shape_q
+  id: interp_fir_filter_xxx
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    interp: sps
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    samp_delay: '0'
+    taps: pulse_taps
+    type: fff
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1024, 416.0]
+    rotation: 0
+    state: enabled
+- name: split_iq
+  id: blocks_deinterleave
+  parameters:
+    affinity: ''
+    alias: ''
+    blocksize: '1'
+    comment: 'deinterleave each pair of bits
+
+      first = I
+
+      second = Q'
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    num_streams: '2'
+    type: byte
+    vlen: '1'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [416, 352.0]
+    rotation: 0
+    state: enabled
+- name: to_cs8
+  id: blocks_complex_to_interleaved_char
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    scale_factor: '127'
+    vector_output: 'False'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1720, 520.0]
+    rotation: 0
+    state: enabled
+- name: unpack
+  id: blocks_packed_to_unpacked_xx
+  parameters:
+    affinity: ''
+    alias: ''
+    bits_per_chunk: '1'
+    comment: ''
+    endianness: gr.GR_MSB_FIRST
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    num_ports: '1'
+    type: byte
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [224, 352.0]
+    rotation: 0
+    state: enabled
+- name: wheel
+  id: nabu_headend_wheel_source
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: packed line bytes
+    config_file: config
+    maxoutbuf: '0'
+    minoutbuf: '0'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [32, 344.0]
+    rotation: 0
+    state: enabled
+
+connections:
+- [diff_i, '0', map_i, '0']
+- [diff_q, '0', map_q, '0']
+- [join_iq, '0', to_cs8, '0']
+- [map_i, '0', shape_i, '0']
+- [map_q, '0', shape_q, '0']
+- [q_offset, '0', join_iq, '1']
+- [shape_i, '0', join_iq, '0']
+- [shape_q, '0', q_offset, '0']
+- [split_iq, '0', diff_i, '0']
+- [split_iq, '1', diff_q, '0']
+- [to_cs8, '0', tcp_stream, '0']
+- [unpack, '0', split_iq, '0']
+- [wheel, '0', unpack, '0']
+
+metadata:
+  file_format: 1
+  grc_version: 3.10.9.2

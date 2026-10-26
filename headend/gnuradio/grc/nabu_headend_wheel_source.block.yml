@@ -1,0 +1,28 @@
+id: nabu_headend_wheel_source
+label: NABU Wheel Source
+category: '[NABU Headend]'
+
+documentation: |-
+  Live NABU cable headend carousel as packed line bytes (8 line
+  bits per byte, MSB first, for modulation at 6.312 Mbit/s).
+  Segments, grants, time weaving, and pacing come from the YAML
+  config file. Time packets carry the system clock at emission.
+
+templates:
+  imports: from gnuradio import nabu_headend
+  make: nabu_headend.wheel_source(${config_file})
+
+parameters:
+- id: config_file
+  label: Config file
+  dtype: file_open
+  default: headend.yaml
+
+inputs: []
+
+outputs:
+- label: out
+  domain: stream
+  dtype: byte
+
+file_format: 1

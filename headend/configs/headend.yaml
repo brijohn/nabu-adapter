@@ -1,0 +1,24 @@
+# NABU headend wheel configuration
+# Every key is optional except 'paks'. Omitted keys take the values
+# shown here.
+
+# directory of .pak files
+paks: <path/to/paks>
+
+interleave: 192          # round-robin segment pool width
+min_stride_ms: 250       # round pacing grid
+lead_flags: 8            # flag bytes ahead of each frame
+trail_flags: 2           # flag bytes after each frame
+idle_flags: 256          # inter-frame idle flags
+control_gap_flags: 16384 # extra idle after PAL-addressed and time frames
+filler_span_bits: 140000 # longer pads send time packets
+time_frames: true        # time packets at round boundaries and in long pads
+
+# Set Tiers grants, each woven at its own interval
+# palid: broadcast, or a unit address (e.g. 0x80011887)
+# tiers: granted tiers
+grants:
+  - palid: broadcast
+    tiers: 0x7FFFFFFF
+    every_ms: 750
+    phase_ms: 750
