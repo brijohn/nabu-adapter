@@ -1,7 +1,12 @@
-/*******************************************************************
-* MESSAGE LED bench test wheel: a single broadcast-addressed type-1
-* 0x82 message packet (sequence 01020304, message id AABBCCDD).
-********************************************************************/
+/*
+ * packets_message.h - MESSAGE LED bench test wheel
+ *
+ * Copyright (c) 2026 Brian Johnson
+ * SPDX-License-Identifier: AGPL-3.0-or-later
+ *
+ * A single broadcast-addressed type-1 0x82 message packet (sequence
+ * 01020304, message id AABBCCDD).
+ */
 
 const uint8_t DATA_000001_blk0[] = {
 	0xFF, 0xFF, 0xFF, 0xFF, 0x82, 0x00, 0x00, 0x00,

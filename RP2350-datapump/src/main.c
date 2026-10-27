@@ -1,7 +1,11 @@
-/******************************************
- * NABU-PC Adaptor datapump — PIO output version
+/*
+ * main.c - NABU-PC Adapter datapump, PIO output version
  *
- * Generates scrambled NABU Adaptor data streams at the true line rate of
+ * Copyright (c) 2024 Phil Pemberton
+ * Copyright (c) 2026 Brian Johnson
+ * SPDX-License-Identifier: AGPL-3.0-or-later
+ *
+ * Generates scrambled NABU Adapter data streams at the true line rate of
  * 6.312 Mbit/s.
  *
  * Derived from Phil Pemberton's NABU-RP2040-Datapump.
@@ -26,11 +30,11 @@
  *    multiple of the 12.624 MHz PIO clock, this eliminates fractional jitter.
  *
  * Output pins (same wiring as the SPI version):
- *   GP18 = bit clock  -> Adaptor J3 pin 7 (demodulator clock)
- *   GP19 = data       -> Adaptor J3 pin 9 (demodulator data)
+ *   GP18 = bit clock  -> Adapter J3 pin 7 (demodulator clock)
+ *   GP19 = data       -> Adapter J3 pin 9 (demodulator data)
  *   GND               -> J3 pins 1/6/8
  * Data is presented while the clock is low and stable across the rising
- * edge — the adaptor captures on the rising edge.
+ * edge — the adapter captures on the rising edge.
  */
 
 #include <stdio.h>
@@ -387,7 +391,7 @@ static void __attribute__((unused)) send_auth_tiers(const uint32_t uaddr, const 
 // Message
 static void __attribute__((unused)) send_message(const uint32_t uaddr, const uint32_t seqn, const uint32_t msgcode)
 {
-	uint8_t buf[25];
+	uint8_t buf[26];
 	size_t i=0;
 
 	// Make sure the top bit of the unit address is set - if not, this will look like a segment!
@@ -400,8 +404,8 @@ static void __attribute__((unused)) send_message(const uint32_t uaddr, const uin
 	buf[i++] = (ua)       & 0xff;
 	buf[i++] = 0x82;					// Command code, 0x82 = Message
 
-	// Free space to byte 15
-	while (i<15) {
+	// Free space to byte 16
+	while (i<16) {
 		buf[i++] = 0;
 	}
 

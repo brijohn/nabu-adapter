@@ -2,13 +2,13 @@
 
 Raspberry Pi Pico 2 firmware that generates a scrambled, HDLC-framed NABU
 cable data stream at a 6.312 Mbit/s line rate and injects it
-directly into a NABU Network Adaptor (NA-2), bypassing the RF can.
+directly into a NABU Network Adapter (NA-2), bypassing the RF can.
 
 Derived from Phil Pemberton's [NABU-RP2040-Datapump](https://github.com/philpem/NABU-Adaptor/tree/master/NABU-RP2040-Datapump).
 
 ## Wiring
 
-| Pico 2 | Adaptor J3 |
+| Pico 2 | Adapter J3 |
 |--------|------------|
 | GP18 (bit clock) | pin 7 (demodulator clock) |
 | GP19 (data)      | pin 9 (demodulator data) |
@@ -28,7 +28,18 @@ ARM GCC toolchain.
 Set in `src/main.c`:
 
 - `MESSAGE_LED_TEST` (default): broadcasts a single message packet that
-  lights the adaptor's MESSAGE LED. No NABU PC needed.
+  lights the adapter's MESSAGE LED. No NABU PC needed.
   Comment it out to send the boot wheel in `src/packets.h` instead.
 - `EXACT_CLOCK` (default): runs the system clock at 63.12 MHz for a
   jitter-free integer PIO divider.
+
+## License
+
+Licensed under the GNU Affero General Public License v3.0 or later. See
+`COPYING`.
+
+`src/crc16_genibus.c` and `src/crc16_genibus.h` are by Jason R. Thorpe
+under the BSD 2-clause license given in each file.
+
+`src/packets.h` holds the original NABU boot segment 000001 and is not
+covered by this license.

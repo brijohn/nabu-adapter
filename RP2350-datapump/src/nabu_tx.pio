@@ -1,5 +1,7 @@
+; nabu_tx.pio - NABU Adapter datapump transmitter
 ;
-; NABU Adaptor datapump transmitter
+; Copyright (c) 2026 Brian Johnson
+; SPDX-License-Identifier: AGPL-3.0-or-later
 ;
 ; Streams a scrambled NABU bitstream as a synchronous clock+data pair at
 ; 6.312 Mbit/s:
@@ -8,20 +10,20 @@
 ;   OUT pin      = data       (GP19 -> J3 pin 9)
 ;
 ; Data changes only while the clock is low and is stable across the rising
-; edge; the adaptor captures data on the rising edge.
+; edge; the adapter captures data on the rising edge.
 ;
 ; One loop iteration = one bit period = 2 PIO cycles, so run the state
 ; machine at 2 x 6.312 MHz = 12.624 MHz. 50% clock duty cycle.
 ;
 ; If the TX FIFO runs dry, the `out` stalls with the clock parked low so an
 ; underrun pauses the stream cleanly instead of clocking garbage into the
-; adaptor.
+; adapter.
 
 .program nabu_tx
 .side_set 1
 
     out pins, 1     side 0      ; clock low: present the next data bit
-    nop             side 1      ; clock high: adaptor samples this rising edge
+    nop             side 1      ; clock high: adapter samples this rising edge
 
 % c-sdk {
 #include "hardware/clocks.h"
